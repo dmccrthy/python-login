@@ -1,5 +1,5 @@
 import json
-    
+
 class user: #Defines user object for account creation and login
     def __init__(self, email, password):
         self.email = email
@@ -8,35 +8,33 @@ class user: #Defines user object for account creation and login
         userbase[self.email] = {"password":self.password}
         json.dump(userbase, open("./src/userbase.json", 'w+'))
     def checkdupe(self): #Method to check new accounts against existing ones to prevent email duplication
-        for i in userbase.keys.lower():
+        for i in userbase.keys():
             if self.email == i:
                 return True
         return False
 
-def CreateAcc():
-    mail = input("Email: ")
-    pas = input("Password: ")
-    confpas = input("Confirm Password: ")
+def createacc(mail, pas, confpas):
     if pas != confpas: #Check if passwords match
-        print("Error: Passwords Don't Match")
-        CreateAcc()
+        return 1
     else:
         new = user(mail, pas)
         isdupe = new.checkdupe()
         if isdupe == True:
-            print("Error: Email Already in Use")
-            CreateAcc()
+            return 2
         elif isdupe == False:
-            print("Account Creation Successful")
             new.saveinfo()
-            print(userbase)
-
-def Main():
-    CreateAcc()
+            return 0   #Success
+        
+def login(mail, pas):
+    try:
+        if pas == userbase[mail]["password"]: #Check password against email password
+            return 0 #Success
+        elif pas != userbase[mail]["password"]: #If password doesn't match account
+            return 1 #Failure
+    except KeyError: #If email isn't associated with account
+        return 2 #Failure
 
 try:
     userbase = json.load(open("./src/userbase.json"))
 except FileNotFoundError:
     userbase = {"blank":"blank"}
-
-Main()
